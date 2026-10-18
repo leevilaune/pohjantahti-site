@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: pohjantahti-api
+  config:
+    # Optional local .env file (KEY=value lines, git-ignored) so secrets also work
+    # when the app is started from an IDE, which does not inherit shell exports.
+    import: optional:file:./.env[.properties]
+  datasource:
+    # File-based H2 database, stored in ./data. Swap for PostgreSQL/MySQL by
+    # changing the URL, credentials and the runtime dependency in pom.xml.
+    url: jdbc:h2:file:./data/pohjantahti
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+coc:
+  base-url: https://api.clashofclans.com/v1
+  # Create a key at https://developer.clashofclans.com. A key only works from the
+  # IP addresses you list when creating it. Never commit the token.
+  token: ${COC_API_TOKEN:}
+  # The three Pohjantähti clans
+  clan-tags:
+    - "#2GY2L0UQP"
+    - "#2RJ0VGRCL"
+    - "#2JJGRUPQL"
+  # ISO-8601 duration between refreshes (delay after the previous run finished)
+  refresh-interval: PT10M
+
+app:
+  # Protects POST /api/admin/refresh. Leave empty to disable the endpoint.
+  admin-key: ${ADMIN_KEY:}
+  cors:
+    allowed-origins: http://localhost:5173,https://pt.onesnzeroes.dev

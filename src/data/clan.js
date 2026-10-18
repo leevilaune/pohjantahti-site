@@ -1,31 +1,22 @@
 // ─────────────────────────────────────────────────────────────
 //  POHJANTÄHTI – klaanin tiedot
-//  Muokkaa tätä tiedostoa: tagi, tilastot, jäsenet ja säännöt.
-//  Arvot ovat esimerkkejä, kunnes korvaat ne omilla tiedoillasi.
+//  Muokkaa tätä tiedostoa: klaanien tagit, Discord-linkki ja säännöt.
+//  Tilastot ja jäsenet haetaan backendistä (ks. src/useClan.js).
 // ─────────────────────────────────────────────────────────────
 
 export const clan = {
   name: 'Pohjantähti',
   tagline: 'Suomalainen sotaklaani',
-  tag: '#XXXXXXXX', // ← vaihda klaanin oikea tagi, esim. #2ABC123
   discord: 'https://discord.gg/', // ← lisää kutsulinkki
-  language: 'Suomi',
-  location: 'Suomi',
-  minTownHall: 10,
-  requiredTrophies: 3000,
-  type: 'Vain kutsusta / hakemuksesta',
 }
 
-// Kovakoodatut esimerkkitilastot. Jos asetat VITE_CLAN_API-ympäristömuuttujan
-// (ks. README), nämä päivittyvät automaattisesti elävästä datasta.
-export const stats = {
-  level: 12,
-  points: 42000,
-  warWins: 180,
-  warStreak: 7,
-  members: 42,
-  capacity: 50,
-}
+// Klaanien tagit. Sivu näyttää nämä, jos backend ei vastaa; muuten nimet
+// haetaan suoraan pelistä.
+export const clans = [
+  { name: 'Pohjantähti I', tag: '#2GY2L0UQP' },
+  { name: 'Pohjantähti II', tag: '#2RJ0VGRCL' },
+  { name: 'Pohjantähti III', tag: '#2JJGRUPQL' },
+]
 
 export const features = [
   {
@@ -48,17 +39,6 @@ export const features = [
     title: 'Vain suomenkielisille',
     text: 'Klaanin kieli on suomi. Keskustelu pelissä ja Discordissa käydään suomeksi hyvässä hengessä.',
   },
-]
-
-export const members = [
-  { name: 'Pohjan Susi', role: 'Päällikkö', th: 16, trophies: 5421, donations: 2310 },
-  { name: 'Revontuli', role: 'Apulaispäällikkö', th: 16, trophies: 5280, donations: 1980 },
-  { name: 'Kuura', role: 'Apulaispäällikkö', th: 15, trophies: 5104, donations: 2540 },
-  { name: 'Jääkarhu', role: 'Vanhin', th: 16, trophies: 4987, donations: 1620 },
-  { name: 'Talvisota', role: 'Vanhin', th: 15, trophies: 4850, donations: 1415 },
-  { name: 'Kaamos', role: 'Vanhin', th: 15, trophies: 4733, donations: 1190 },
-  { name: 'Hallavuori', role: 'Jäsen', th: 14, trophies: 4402, donations: 880 },
-  { name: 'Pakkanen', role: 'Jäsen', th: 14, trophies: 4310, donations: 760 },
 ]
 
 export const rules = [

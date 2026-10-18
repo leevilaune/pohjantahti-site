@@ -6,7 +6,7 @@ Website for **Pohjantähti**, a Finnish Clash of Clans war clan family (three cl
 
 - Hero section with the clan banner and call-to-action buttons
 - "Why us" cards (active wars, clan games and raid weekends, three stars, Finnish speakers only)
-- Clan stats, member table and clan rules
+- Clan stats and member table (one tab per clan), loaded from the backend, and clan rules
 - Join section with a card for each of the three clans: click the tag to copy it, or open the clan in the game
 - Responsive layout with a mobile menu
 
@@ -33,39 +33,42 @@ src/
     Nav.jsx            top navigation
     Sections.jsx       hero, features, stats, members, rules, join, footer
     Icons.jsx          SVG icons
-  useClan.js           stats/members source (static or live)
+  useClan.js           loads stats and members from the backend (/api)
   styles.css           theme and layout
   App.jsx, main.jsx
 ```
 
+## Backend
+
+Stats, member lists and clan names come from the Spring Boot backend in [`backend/`](backend/README.md), which caches the Clash of Clans API. The site calls these endpoints:
+
+- `GET /api/overview`
+- `GET /api/clans/{tag}`
+
+Requests use relative URLs (`/api/...`):
+
+- **Development:** Vite proxies `/api` to `http://localhost:8080`. Start the backend first (`cd backend && mvn spring-boot:run`, see its README), then `npm run dev`. Use `BACKEND_URL=http://host:port npm run dev` if the backend runs elsewhere.
+- **Production:** nginx proxies `/api/` to the backend (see Deployment below).
+- To call a backend on another origin, set `VITE_API_URL` (e.g. in `.env`); the backend's `app.cors.allowed-origins` must then include the site's origin.
+
+If the backend is down, the stats show "–", the member list shows a short notice, and the join cards still list the clan tags from `src/data/clan.js`.
+
 ## Editing content
 
-Almost everything lives in `src/data/clan.js`:
+Static content lives in `src/data/clan.js`:
 
 | Export     | What it controls                                              |
 | ---------- | ------------------------------------------------------------- |
-| `clan`     | name, Discord invite link, language, Town Hall/trophy limits  |
-| `clans`    | the three clan names and tags shown in the Join section      |
-| `stats`    | clan level, points, war wins, win streak, member count        |
+| `clan`     | name, tagline and Discord invite link                         |
+| `clans`    | clan tags shown in the Join section (names come from the game when the backend is up) |
 | `features` | the four "why us" cards                                       |
-| `members`  | rows in the member table                                      |
 | `rules`    | clan rules                                                    |
 
-Note: `stats`, `members`, the clan names ("Pohjantähti I/II/III") and the Discord link are placeholders until you replace them. The tags in `clans` are the real ones:
+The Discord link (`clan.discord`) is still a placeholder. The clans' tags are the real ones:
 
 - `#2GY2L0UQP`
 - `#2RJ0VGRCL`
 - `#2JJGRUPQL`
-
-## Live data (optional)
-
-By default the stats and member list come from `src/data/clan.js`. To show live data, set `VITE_CLAN_API` to a URL that returns the response of the Clash of Clans API endpoint `/clans/{tag}`, for example in a `.env` file:
-
-```
-VITE_CLAN_API=https://your-proxy.example.com/clan
-```
-
-Do not put your Clash of Clans API token in the frontend: it would be visible to everyone. Use a small proxy that holds the token (the API token is bound to the IP addresses you whitelist). If the request fails, the site falls back to the static data. Live data covers one clan, so choose which of the three the proxy returns.
 
 ## Deployment (Raspberry Pi with nginx)
 
@@ -119,6 +122,17 @@ Do not put your Clash of Clans API token in the frontend: it would be visible to
    ```
 
    If certbot cannot find the server block, check that `server_name` matches the domain exactly and that no other site config uses the same name.
+
+6. Proxy the API to the Spring Boot backend by adding this to the same `server` block (see `backend/README.md` for running the backend as a service):
+
+   ```nginx
+   location /api/ {
+       proxy_pass http://127.0.0.1:8080;
+       proxy_set_header Host $host;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header X-Forwarded-Proto $scheme;
+   }
+   ```
 
 To update the site later, rebuild, copy the files to `/var/www/pohjantahti` and you are done. nginx does not need a restart.
 

@@ -1,54 +1,48 @@
 import { useEffect, useState } from 'react'
-import { stats as fallbackStats, members as fallbackMembers } from './data/clan.js'
+import { clans as configuredClans } from './data/clan.js'
 
-const roleFi = {
-  leader: 'Päällikkö',
-  coLeader: 'Apulaispäällikkö',
-  admin: 'Vanhin',
-  member: 'Jäsen',
+// Empty by default: requests go to /api on the same origin (Vite proxy in dev,
+// nginx in production). Set VITE_API_URL to point at a backend elsewhere.
+const API = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+
+async function getJson(path, signal) {
+  const res = await fetch(`${API}${path}`, { signal })
+  if (!res.ok) throw new Error(`${path} -> ${res.status}`)
+  return res.json()
 }
 
 /**
- * Palauttaa klaanin tilastot ja jäsenlistan.
- * Jos VITE_CLAN_API on asetettu (osoite, joka palauttaa Clash of Clans API:n
- * /clans/{tag} -vastauksen), käytetään sitä. Muuten käytetään src/data/clan.js
- * -tiedoston arvoja. API-avainta EI koskaan laiteta selaimeen – käytä
- * pientä välityspalvelinta (proxy), ks. README.
+ * Loads the clan overview and every clan's member list from the backend.
+ *
+ * status: 'loading' | 'ready' | 'error'
+ * overview: totals across all clans (or null)
+ * clans: [{ tag, name, members: [...] | undefined }]; falls back to the tags in
+ *        src/data/clan.js (without members) when the backend has no data.
  */
 export function useClan() {
-  const [state, setState] = useState({
-    stats: fallbackStats,
-    members: fallbackMembers,
-    live: false,
-  })
+  const [state, setState] = useState({ status: 'loading', overview: null, clans: configuredClans })
 
   useEffect(() => {
-    const api = import.meta.env.VITE_CLAN_API
-    if (!api) return
     const ctrl = new AbortController()
-    fetch(api, { signal: ctrl.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((c) => {
+    ;(async () => {
+      try {
+        const overview = await getJson('/api/overview', ctrl.signal)
+        const clans = await Promise.all(
+          overview.clans.map(async (c) => {
+            // '#' cannot be part of a URL path, the backend accepts tags without it
+            const d = await getJson(`/api/clans/${c.tag.replace('#', '')}`, ctrl.signal)
+            return { tag: d.tag, name: d.name, members: d.memberList }
+          })
+        )
         setState({
-          live: true,
-          stats: {
-            level: c.clanLevel,
-            points: c.clanPoints,
-            warWins: c.warWins,
-            warStreak: c.warWinStreak,
-            members: c.members,
-            capacity: 50,
-          },
-          members: (c.memberList || []).slice(0, 12).map((m) => ({
-            name: m.name,
-            role: roleFi[m.role] || 'Jäsen',
-            th: m.townHallLevel,
-            trophies: m.trophies,
-            donations: m.donations,
-          })),
+          status: 'ready',
+          overview: overview.clanCount > 0 ? overview : null,
+          clans: clans.length > 0 ? clans : configuredClans,
         })
-      })
-      .catch(() => {})
+      } catch (e) {
+        if (e.name !== 'AbortError') setState((s) => ({ ...s, status: 'error' }))
+      }
+    })()
     return () => ctrl.abort()
   }, [])
 
