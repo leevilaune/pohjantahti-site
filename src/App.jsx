@@ -3,7 +3,7 @@ import { Hero, Features, Stats, Members, Rules, Join, Footer } from './component
 import { useClan } from './useClan.js'
 
 export default function App() {
-  const { stats, members, live } = useClan()
+  const { status, overview, clans } = useClan()
 
   return (
     <>
@@ -11,10 +11,10 @@ export default function App() {
       <main>
         <Hero />
         <Features />
-        <Stats stats={stats} live={live} />
-        <Members members={members} />
+        <Stats overview={overview} status={status} />
+        <Members clans={clans} status={status} />
         <Rules />
-        <Join />
+        <Join clans={clans} />
       </main>
       <Footer />
     </>

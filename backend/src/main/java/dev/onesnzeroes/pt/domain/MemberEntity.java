@@ -39,6 +39,13 @@ public class MemberEntity {
     private int donations;
     private int donationsReceived;
 
+    private Long leagueId;
+
+    private String leagueName;
+
+    @Column(length = 500)
+    private String leagueIconUrl;
+
     protected MemberEntity() {
     }
 
@@ -56,6 +63,11 @@ public class MemberEntity {
         this.clanRank = ClanEntity.n(m.clanRank());
         this.donations = ClanEntity.n(m.donations());
         this.donationsReceived = ClanEntity.n(m.donationsReceived());
+        // Newer API versions report a league tier; older ones only the legacy league.
+        CocLeague league = m.leagueTier() != null ? m.leagueTier() : m.league();
+        this.leagueId = league == null ? null : league.id();
+        this.leagueName = league == null ? null : league.name();
+        this.leagueIconUrl = league == null ? null : league.icon();
     }
 
     public Long getId() { return id; }
@@ -69,4 +81,7 @@ public class MemberEntity {
     public int getClanRank() { return clanRank; }
     public int getDonations() { return donations; }
     public int getDonationsReceived() { return donationsReceived; }
+    public Long getLeagueId() { return leagueId; }
+    public String getLeagueName() { return leagueName; }
+    public String getLeagueIconUrl() { return leagueIconUrl; }
 }

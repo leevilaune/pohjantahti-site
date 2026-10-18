@@ -13,5 +13,7 @@ public record CocMember(
         Integer trophies,
         Integer clanRank,
         Integer donations,
-        Integer donationsReceived) {
+        Integer donationsReceived,
+        CocLeague league,
+        CocLeague leagueTier) {
 }

@@ -30,7 +30,9 @@ class ClashOfClansClientTest {
               "badgeUrls": {"large": "https://example.test/badge.png"},
               "memberList": [
                 {"tag": "#P1", "name": "Susi", "role": "leader", "townHallLevel": 16,
-                 "trophies": 5400, "clanRank": 1, "donations": 100, "donationsReceived": 50},
+                 "trophies": 5400, "clanRank": 1, "donations": 100, "donationsReceived": 50,
+                 "league": {"id": 29000022, "name": "Legend League",
+                            "iconUrls": {"small": "https://img.test/s.png", "medium": "https://img.test/m.png"}}},
                 {"tag": "#P2", "name": "Kuura", "role": "member", "townHallLevel": 15,
                  "trophies": 5000, "clanRank": 2, "donations": 10, "donationsReceived": 90}
               ]
@@ -61,6 +63,9 @@ class ClashOfClansClientTest {
         assertThat(clan.badgeUrls()).containsEntry("large", "https://example.test/badge.png");
         assertThat(clan.memberList()).hasSize(2);
         assertThat(clan.memberList().get(0).role()).isEqualTo("leader");
+        assertThat(clan.memberList().get(0).league().name()).isEqualTo("Legend League");
+        assertThat(clan.memberList().get(0).league().icon()).isEqualTo("https://img.test/s.png");
+        assertThat(clan.memberList().get(1).league()).isNull();
         server.verify();
     }
 

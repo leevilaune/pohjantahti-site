@@ -20,12 +20,16 @@ public final class ClanDtos {
             int trophies,
             int clanRank,
             int donations,
-            int donationsReceived) {
+            int donationsReceived,
+            Long leagueId,
+            String league,
+            String leagueIcon) {
 
         static MemberDto from(MemberEntity m) {
             return new MemberDto(m.getPlayerTag(), m.getName(), m.getRole(), m.getTownHallLevel(),
                     m.getExpLevel(), m.getTrophies(), m.getClanRank(), m.getDonations(),
-                    m.getDonationsReceived());
+                    m.getDonationsReceived(), m.getLeagueId(), m.getLeagueName(),
+                    m.getLeagueIconUrl());
         }
     }
 

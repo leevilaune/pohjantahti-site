@@ -41,7 +41,7 @@ The app starts without a token too; it just logs a warning and serves an empty l
 | GET    | `/api/clans/{tag}/members`   | members only, ordered by clan rank                       |
 | POST   | `/api/admin/refresh`         | refresh now; needs header `X-Admin-Key` (see below)      |
 
-Tags can be written with or without `#`: `/api/clans/2GY2L0UQP`. Only tracked clans are served, so the backend cannot be used to look up arbitrary clans. Member `role` is the raw API value: `leader`, `coLeader`, `admin`, `member`.
+Tags can be written with or without `#`: `/api/clans/2GY2L0UQP`. Only tracked clans are served, so the backend cannot be used to look up arbitrary clans. Member `role` is the raw API value: `leader`, `coLeader`, `admin`, `member`. Members also carry `leagueId`, `league` (name) and `leagueIcon` (image URL), taken from the API's `leagueTier` or, failing that, `league`; all three are `null` if the API sends none. League ids grow with league level, which the website uses to sort by league. After upgrading, leagues appear after the next refresh.
 
 Errors use RFC 9457 problem details: 400 for malformed tags, 404 for clans that are not tracked or not fetched yet, 502 if the Clash of Clans API failed (e.g. 403 means the token is wrong or the IP is not allowed for the key).
 
